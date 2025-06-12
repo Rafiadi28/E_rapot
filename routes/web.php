@@ -43,12 +43,17 @@ Route::middleware(['auth', 'user.role:superadmin'])->group(function () {
     Route::prefix('superadmin')->name('superadmin.')->group(function () {
         // Dashboard
         Route::get('/dashboard', [SuperadminController::class, 'dashboard'])->name('dashboard');
-        
+        // Tambahkan route berikut di dalam grup route superadmin
+        Route::get('siswa/upload', [SiswaController::class, 'upload'])->name('siswa.upload');
+        Route::resource('siswa', SiswaController::class); // sudah otomatis ada route create
+        Route::post('siswa/import', [SiswaController::class, 'import'])->name('siswa.import');
+        Route::get('siswa/template', [SiswaController::class, 'template'])->name('siswa.template');
         // Master Data
         Route::resource('users', UserController::class);
         Route::resource('kelas', KelasController::class);
         Route::resource('jurusan', JurusanController::class);
         Route::resource('siswa', SiswaController::class); // Ubah menjadi resource route
+        
         
         // Mata Pelajaran Routes
         Route::prefix('mapel')->name('mapel.')->group(function () {
@@ -72,7 +77,7 @@ Route::middleware(['auth', 'user.role:superadmin'])->group(function () {
 
 // Waka Kurikulum Routes
 Route::middleware(['auth', 'user.role:waka_kurikulum'])->group(function () {
-    Route::prefix('wakakurikulum')->name('wakakurikulum')->group(function () {
+    Route::prefix('wakakurikulum')->name('wakakurikulum.')->group(function () {
         Route::get('/dashboard', [WakaKurikulumController::class, 'dashboard'])->name('dashboard');
         Route::resource('mata-pelajaran', MataPelajaranController::class);
     });

@@ -66,4 +66,9 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(MataPelajaran::class, 'guru_mata_pelajaran', 'guru_id', 'mata_pelajaran_id');
     }
+
+    public function kelas()
+    {
+        return $this->hasOne(Kelas::class, 'walikelas_id');
+    }
 }
