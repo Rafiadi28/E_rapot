@@ -9,7 +9,7 @@ class KelasController extends Controller
 {
     public function index()
     {
-        $kelas = Kelas::all();
+        $kelas = Kelas::paginate(10); // Mengubah ::all() menjadi ::paginate()
         return view('superadmin.kelas.index', compact('kelas'));
     }
 

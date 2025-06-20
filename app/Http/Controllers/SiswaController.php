@@ -108,17 +108,29 @@ class SiswaController extends Controller
         $request->validate([
             'file' => 'required|mimes:xlsx',
         ]);
-
+    
         $kelas_id = $request->kelas_id;
-
-        Excel::import(new SiswaImport($kelas_id), $request->file('file'));
-
-        return redirect()->route('superadmin.siswa.index')
-            ->with('success', 'Data siswa berhasil diimport');
-    }
-
-    public function template()
-    {
-        return Excel::download(new SiswaTemplateExport, 'template_siswa.xlsx');
+    
+        try {
+            Excel::import(new SiswaImport($kelas_id), $request->file('file'));
+            
+            return redirect()->route('superadmin.siswa.index')
+                ->with('success', 'Data siswa berhasil diimport');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+            $errors = [];
+            
+            foreach ($failures as $failure) {
+                $errors[] = "Baris {$failure->row()}: " . implode(', ', $failure->errors());
+            }
+            
+            return redirect()->back()
+                ->withErrors(['import' => $errors])
+                ->withInput();
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withErrors(['import' => 'Terjadi kesalahan saat import: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 }

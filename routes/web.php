@@ -18,6 +18,10 @@ use App\Http\Controllers\KelasController;
 // Auth Routes
 Auth::routes(['register' => false]);
 
+// Route untuk download template
+Route::get('/download/template/siswa', [\App\Http\Controllers\DownloadController::class, 'downloadTemplateSiswa'])
+    ->name('template.siswa.download');
+
 // Redirect root ke login atau dashboard sesuai role
 Route::get('/', function () {
     if (Auth::check()) {
@@ -43,16 +47,28 @@ Route::middleware(['auth', 'user.role:superadmin'])->group(function () {
     Route::prefix('superadmin')->name('superadmin.')->group(function () {
         // Dashboard
         Route::get('/dashboard', [SuperadminController::class, 'dashboard'])->name('dashboard');
-        // Tambahkan route berikut di dalam grup route superadmin
-        Route::get('siswa/upload', [SiswaController::class, 'upload'])->name('siswa.upload');
-        Route::resource('siswa', SiswaController::class); // sudah otomatis ada route create
-        Route::post('siswa/import', [SiswaController::class, 'import'])->name('siswa.import');
-        Route::get('siswa/template', [SiswaController::class, 'template'])->name('siswa.template');
+        
+        // Siswa Routes
+        Route::prefix('siswa')->name('siswa.')->group(function () {
+            Route::get('/', [SiswaController::class, 'index'])->name('index');
+            Route::get('/create', [SiswaController::class, 'create'])->name('create');
+            Route::post('/', [SiswaController::class, 'store'])->name('store');
+            Route::get('/{siswa}/edit', [SiswaController::class, 'edit'])->name('edit');
+            Route::put('/{siswa}', [SiswaController::class, 'update'])->name('update');
+            Route::delete('/{siswa}', [SiswaController::class, 'destroy'])->name('destroy');
+            
+            // Import/Export Routes
+            Route::get('/upload', [SiswaController::class, 'upload'])->name('upload');
+            Route::post('/import', [SiswaController::class, 'import'])->name('import');
+            
+            // Route untuk download template
+            Route::get('/template/download', [SiswaController::class, 'downloadTemplate'])->name('template.download');
+        });
+        
         // Master Data
         Route::resource('users', UserController::class);
         Route::resource('kelas', KelasController::class);
         Route::resource('jurusan', JurusanController::class);
-        Route::resource('siswa', SiswaController::class); // Ubah menjadi resource route
         
         
         // Mata Pelajaran Routes
@@ -91,6 +107,7 @@ Route::middleware(['auth', 'user.role:guru_mapel'])->group(function () {
     });
 });
 
+// Route untuk download template
 // Wali Kelas Routes
 Route::middleware(['auth', 'user.role:walikelas'])->group(function () {
     Route::prefix('walikelas')->name('walikelas.')->group(function () {
